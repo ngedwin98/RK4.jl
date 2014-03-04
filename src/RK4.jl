@@ -3,6 +3,7 @@ export rk4solve, rk4solve_stochastic
 
     
 macro addto!(v1, v2, factor)
+    # my own little devectorization macro. not sure if necessary.
     quote
         local jj::Int
         for jj=1:length($(esc(v1)))
