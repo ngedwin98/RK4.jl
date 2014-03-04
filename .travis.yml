@@ -1,0 +1,13 @@
+language: cpp
+compiler:
+  - clang
+notifications:
+  email: false
+before_install:
+  - sudo add-apt-repository ppa:staticfloat/julia-deps -y
+  - sudo add-apt-repository ppa:staticfloat/julianightlies -y
+  - sudo apt-get update -qq -y
+  - sudo apt-get install libpcre3-dev julia -y
+script:
+  - julia -e 'Pkg.init(); run(`ln -s $(pwd()) $(Pkg.dir("RK4"))`); Pkg.pin("RK4"); Pkg.resolve()'
+  - julia -e 'using RK4; @assert isdefined(:RK4); @assert typeof(RK4) === Module'
