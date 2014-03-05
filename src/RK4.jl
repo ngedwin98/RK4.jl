@@ -28,22 +28,25 @@ function rk4solve{T}(ode!::Function, z0::AbstractVector{T}, tlist::AbstractVecto
     
     for kk=2:length(tlist)
         while(t < tlist[kk])
+            
+            # within this loop, use retvals[:,kk] 
+            # as extra temporary variable
             retvals[:,kk] = z
             
             h = min(tlist[kk]-t, hmax)
             ode!(t, z, k1, odeparams)
 
             t += .5 .* h
-            @addto! z k1 .5*h
+            z[:] += .5 * h * k1
             ode!(t, z, k2, odeparams)
             
             z[:] = retvals[:,kk]
-            @addto! z k2 .5*h
+            z[:] += .5 * h * k2
             ode!(t, z, k3, odeparams)
         
             t+= .5 * h
             z[:] = retvals[:,kk]
-            @addto! z k3 h
+            z[:] += h * k3
             ode!(t, z, k4, odeparams)
             
             for jj=1:n
@@ -95,15 +98,15 @@ function rk4solve_stochastic{T}(sde!::Function, z0::AbstractVector{T}, tlist::Ab
             sde!(t, z, w, k1, sdeparams)
 
             t += .5 * h
-            @addto! z k1 .5*h
+            z[:] += .5 * h * k1
             sde!(t, z, w, k2, sdeparams)
             z[:] = retvals[:,kk]
-            @addto! z k2 .5*h
+            z[:] += .5 * h * k2
             sde!(t, z, w, k3, sdeparams)
         
             t+= .5 * h
             z[:] = retvals[:,kk]
-            @addto! z k3 h
+            z[:] += h * k3
             sde!(t, z, w, k4, sdeparams)
             
             for jj=1:n
