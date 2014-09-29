@@ -112,14 +112,14 @@ function rk4solve_stochastic{T}(sde!::Function, z0::AbstractVector{T}, tlist::Ab
             for jj=1:n
                 z[jj] = (retvals[jj,kk] + h/6. * (k1[jj] + 2.*(k2[jj] + k3[jj]) + k4[jj]))
             end
-            retws[:,kk-1] += w
+            retws[:,kk-1] += w * h
 
             if h < hmax
                 break
             end
-
-
+			
         end
+		retws[:,kk-1] /= tlist[kk]-tlist[kk-1]
         retvals[:,kk] = z
         t = tlist[kk]
     end
