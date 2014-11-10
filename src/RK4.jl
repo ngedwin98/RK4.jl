@@ -14,7 +14,7 @@ end
     
     
     
-function rk4solve{T}(ode!::Function, z0::AbstractVector{T}, tlist::AbstractVector{Float64}, hmax::Float64, odeparams=nothing)
+function rk4solve{T}(ode!::Function, z0::AbstractVector{T}, tlist::AbstractVector{Float64}, hmax::Float64, odeparams=nothing; verbose=true)
     @assert length(tlist) >= 1
     n = length(z0)
     t::Float64 = float64(tlist[1])
@@ -25,7 +25,15 @@ function rk4solve{T}(ode!::Function, z0::AbstractVector{T}, tlist::AbstractVecto
     k3 = zeros(T, n)
     k4 = zeros(T, n)
     retvals[:,1] = z
-    
+
+
+    jjj = 1
+    perc_interval = (tlist[end]-tlist[1])/100.
+
+    if verbose
+        print("[")
+    end
+
     for kk=2:length(tlist)
         while(t < tlist[kk])
             
@@ -58,15 +66,30 @@ function rk4solve{T}(ode!::Function, z0::AbstractVector{T}, tlist::AbstractVecto
             end
 
 
+
+
         end
         retvals[:,kk] = z
         t = tlist[kk]
 
+        if verbose
+            while t / perc_interval > jjj
+                print(".")
+                if jjj % 10 ==0
+                    print("|")
+                end
+                jjj += 1
+            end
+        end
+
+    end
+    if verbose
+        println("]")
     end
     retvals
 end
 
-function rk4solve_stochastic{T}(sde!::Function, z0::AbstractVector{T}, tlist::AbstractVector{Float64}, hmax::Float64, n_noises::Int, sdeparams=nothing)
+function rk4solve_stochastic{T}(sde!::Function, z0::AbstractVector{T}, tlist::AbstractVector{Float64}, hmax::Float64, n_noises::Int, sdeparams=nothing; verbose=true, seed=0)
     @assert length(tlist) >= 1
     n = length(z0)
     
@@ -80,15 +103,27 @@ function rk4solve_stochastic{T}(sde!::Function, z0::AbstractVector{T}, tlist::Ab
     k2 = zeros(T, n)
     k3 = zeros(T, n)
     k4 = zeros(T, n)
+
+    
+    rng = MersenneTwister(seed)
     
     w = zeros(Float64, n_noises)
     retws = zeros(Float64, n_noises, length(tlist)-1)
     
+    jjj = 1
+    perc_interval = (tlist[end]-tlist[1])/100.
+
+
+    if verbose
+        print("[")
+    end
+
+
     retvals[:,1] = z
     for kk=2:length(tlist)
         while(t < tlist[kk])
             
-            randn!(w)
+            randn!(rng, w)
             
             retvals[:,kk] = z
             
@@ -122,7 +157,22 @@ function rk4solve_stochastic{T}(sde!::Function, z0::AbstractVector{T}, tlist::Ab
 		retws[:,kk-1] /= tlist[kk]-tlist[kk-1]
         retvals[:,kk] = z
         t = tlist[kk]
+
+        if verbose
+            while t / perc_interval > jjj
+                print(".")
+                if jjj % 10 ==0
+                    print("|")
+                end
+                jjj += 1
+            end
+        end
+
     end
+    if verbose
+        println("]")
+    end
+
     retvals, retws
 end
 end #module                        
