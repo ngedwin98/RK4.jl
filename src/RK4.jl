@@ -17,7 +17,7 @@ end
 function rk4solve{T}(ode!::Function, z0::AbstractVector{T}, tlist::AbstractVector{Float64}, hmax::Float64, odeparams=nothing; verbose=true)
     @assert length(tlist) >= 1
     n = length(z0)
-    t::Float64 = float64(tlist[1])
+    t::Float64 = Float64(tlist[1])
     retvals = zeros(T, n, length(tlist))
     z = copy(z0)
     k1 = zeros(T, n)
@@ -93,7 +93,7 @@ function rk4solve_stochastic{T}(sde!::Function, z0::AbstractVector{T}, tlist::Ab
     @assert length(tlist) >= 1
     n = length(z0)
     
-    t::Float64 = float64(tlist[1])
+    t::Float64 = Float64(tlist[1])
     retvals = zeros(T, n, length(tlist))
     kk::Int = 0
     jj::Int = 0
